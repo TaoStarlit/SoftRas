@@ -19,7 +19,12 @@ class model
 # the file of the construction is for the decoder, look at softRas(sr)
 # the 2 images and viewpoints are cat in dim=0, reconstrct is dec(enc(imgs)))
 # after computing the laplacian and flat losses using the vertices, the vertices and face repeat and cat and render the silhouettes
-# how is the laplacian and flat losses? what is the ground truth? check the loss function in soft_renderer modules?   tip: the three losses are defined in the soft_renderer
+# how is the laplacian and flat losses? what is the ground truth? check the loss function in soft_renderer modules?   
+
+# tip: the two losses are defined in the soft_renderer.losses.  but in the paper, it is the geometry loss with laplacian regularization
+# sr.SoftRenderer object is created with the model initialization
+#   it used in two places: the viewpoint is fed into the self.renderer.transform.set_eyes(viewpoints)
+#   it is used again, when calulating:  silhouettes = self.renderer(vertices, faces)  
 '''
 
 
