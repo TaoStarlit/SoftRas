@@ -18,6 +18,7 @@ train.py   1 object, 2 images and viewpoint, 3 losses.
     model construct:  'data/obj/sphere/sphere_642.obj'
     data set: ShapeNet
     class id: all?  with different classe of image?
+model.py
 '''
 
 CLASS_IDS_ALL = (
