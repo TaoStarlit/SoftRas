@@ -12,6 +12,14 @@ import imageio
 import time
 import os
 
+'''
+log20201123:
+train.py   1 object, 2 images and viewpoint, 3 losses.
+    model construct:  'data/obj/sphere/sphere_642.obj'
+    data set: ShapeNet
+    class id: all?  with different classe of image?
+'''
+
 CLASS_IDS_ALL = (
     '02691156,02828884,02933112,02958343,03001627,03211117,03636649,' +
     '03691459,04090263,04256520,04379243,04401088,04530566')
@@ -21,7 +29,7 @@ LEARNING_RATE = 1e-4
 LR_TYPE = 'step'
 NUM_ITERATIONS = 250000
 
-LAMBDA_LAPLACIAN = 5e-3
+LAMBDA_LAPLACIAN = 5e-3 # other two losses in section 4.1
 LAMBDA_FLATTEN = 5e-4
 
 PRINT_FREQ = 100
@@ -73,7 +81,7 @@ image_output = os.path.join(directory_output, 'pic')
 os.makedirs(image_output, exist_ok=True)
 
 # setup model & optimizer
-model = models.Model('data/obj/sphere/sphere_642.obj', args=args)
+model = models.Model('data/obj/sphere/sphere_642.obj', args=args) # pretrain?
 model = model.cuda()
 
 optimizer = torch.optim.Adam(model.model_param(), args.learning_rate)
@@ -100,14 +108,14 @@ def train():
         model.set_sigma(adjust_sigma(args.sigma_val, i))
 
         # load images from multi-view
-        images_a, images_b, viewpoints_a, viewpoints_b = dataset_train.get_random_batch(args.batch_size)
+        images_a, images_b, viewpoints_a, viewpoints_b = dataset_train.get_random_batch(args.batch_size) # the images are from 2 views
         images_a = images_a.cuda()
         images_b = images_b.cuda()
         viewpoints_a = viewpoints_a.cuda()
         viewpoints_b = viewpoints_b.cuda()
 
         # soft render images
-        render_images, laplacian_loss, flatten_loss = model([images_a, images_b], 
+        render_images, laplacian_loss, flatten_loss = model([images_a, images_b], # both view and image are fed to the model, reture 3 loss
                                                             [viewpoints_a, viewpoints_b],
                                                             task='train')
         laplacian_loss = laplacian_loss.mean()
