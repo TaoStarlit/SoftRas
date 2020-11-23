@@ -6,6 +6,22 @@ import soft_renderer as sr
 import soft_renderer.functional as srf
 import math
 
+'''
+class encoder and decoder
+# encoder is quite standard
+
+# decoder 2 layers of linear, and 2 branches: 1) outputs B,?,3 shape and * centroid_scale. 3) bias linear -1xnvx3 shape.  nv is the vertices base size from the file
+# 1) 2) make the vertices, it is said that they follow NMR
+# the face and vertice are soft_renderer and registered_buffer, when construct they need sr.Mesh.from_obj(filename_obj)
+
+
+class model
+# the file of the construction is for the decoder, look at softRas(sr)
+# the 2 images and viewpoints are cat in dim=0, reconstrct is dec(enc(imgs)))
+# after computing the laplacian and flat losses using the vertices, the vertices and face repeat and cat and render the silhouettes
+# how is the laplacian and flat losses? what is the ground truth? check the loss function in soft_renderer modules?   tip: the three losses are defined in the soft_renderer
+'''
+
 
 class Encoder(nn.Module):
     def __init__(self, dim_in=4, dim_out=512, dim1=64, dim2=1024, im_size=64):
@@ -24,7 +40,7 @@ class Encoder(nn.Module):
         self.fc2 = nn.Linear(dim_hidden[3], dim_hidden[4])
         self.fc3 = nn.Linear(dim_hidden[4], dim_out)
 
-    def forward(self, x):
+    def forward(self, x): # encoder is quite standard.    conv and linear
         x = F.relu(self.bn1(self.conv1(x)), inplace=True)
         x = F.relu(self.bn2(self.conv2(x)), inplace=True)
         x = F.relu(self.bn3(self.conv3(x)), inplace=True)
@@ -57,7 +73,10 @@ class Decoder(nn.Module):
         self.fc_centroid = nn.Linear(dim_hidden[1], 3)
         self.fc_bias = nn.Linear(dim_hidden[1], self.nv*3)
 
-    def forward(self, x):
+    # decoder 2 layers of linear, and 2 branches: 1) outputs B,?,3 shape and * centroid_scale. 3) bias linear -1xnvx3 shape.  nv is the vertices base size from the file
+    # 1) 2) make the vertices, it is said that they follow NMR
+    # the face and vertice are soft_renderer and registered_buffer, when construct they need sr.Mesh.from_obj(filename_obj)
+    def forward(self, x): 
         batch_size = x.shape[0]
         x = F.relu(self.fc1(x), inplace=True)
         x = F.relu(self.fc2(x), inplace=True)
@@ -86,7 +105,10 @@ class Decoder(nn.Module):
 
         return vertices, faces
 
-
+# the file of the construction is for the decoder, look at softRas(sr)
+# the 2 images and viewpoints are cat in dim=0, reconstrct is dec(enc(imgs)))
+# after computing the laplacian and flat losses using the vertices, the vertices and face repeat and cat and render the silhouettes
+# how is the laplacian and flat losses? what is the ground truth? check the loss function in soft_renderer modules
 class Model(nn.Module):
     def __init__(self, filename_obj, args):
         super(Model, self).__init__()
